@@ -3,6 +3,7 @@ def process_grades(grade_list):
     Parses a list of strings in the format "StudentName:Score"
     and returns a summary dictionary.
     """
+    
     summary = {
         "total": 0,
         "count": 0,
@@ -12,11 +13,10 @@ def process_grades(grade_list):
     for entry in grade_list:
         parts = entry.split(":")
         name = parts[0]
-        score = parts[1]
+        score = int(parts[1])
 
         summary["total"] += score
         summary["count"] += 1
-
     summary["average"] = summary["total"] / summary["count"]
 
     return summary
@@ -29,4 +29,7 @@ class_data = [
 ]
 
 # Run the function
+result = process_grades(['k:8'])
+assert result["count"] == 1
 print(process_grades(class_data))
+
