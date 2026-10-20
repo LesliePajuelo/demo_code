@@ -145,64 +145,65 @@ shortest-path graph algorithm. Path cost is maximum edge weight, not sum.
 Algorithm Chosen: Modified Dijkstra's Algorithm using Min-Heap (Minimax Path).
 
 PLAN:
-1. init rows, cols, and directions array.
-2. init efforts 2D array with infinity, efforts[0][0] = 0.
-3. init min_heap with (0, 0, 0) -> (effort, row, col).
-4. While min_heap:
-5.     Pop effort, r, c.
-6.     If at destination, return effort.
-7.     If effort > efforts[r][c], continue.
-8.     For dr, dc in directions:
-9.         Calculate nr, nc.
-10.        If bounds check passes:
-11.            Calculate new_effort = max(effort, abs(heights[r][c] - heights[nr][nc])).
-12.            If new_effort < efforts[nr][nc]:
-13.                Update efforts[nr][nc] = new_effort.
-14.                Push (new_effort, nr, nc) to min_heap.
+# PLAN:
+# 1. init total_rows, total_cols, and row_col_offsets array.
+# 2. init min_recorded_efforts 2D array with infinity, min_recorded_efforts[0][0] = 0.
+# 3. init path_queue with (0, 0, 0) -> (current_effort, current_row, current_col).
+# 4. While path_queue:
+# 5.     Pop current_effort, current_row, current_col.
+# 6.     If at destination, return current_effort.
+# 7.     If current_effort > min_recorded_efforts[current_row][current_col], continue.
+# 8.     For row_offset, col_offset in row_col_offsets:
+# 9.         Calculate neighbor_row, neighbor_col.
+# 10.        If bounds check passes:
+# 11.            Calculate effort_to_neighbor = max(current_effort, abs(heights[current_row][current_col] - heights[neighbor_row][neighbor_col])).
+# 12.            If effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
+# 13.                Update min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor.
+# 14.                Push (effort_to_neighbor, neighbor_row, neighbor_col) to path_queue.
 """
 import heapq
 
 def minimum_effort_path(heights: list[list[int]]) -> int:
-    # 1. init rows, cols, and directions array.
-    rows, cols = len(heights), len(heights[0])
-    directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+    # 1. init total_rows, total_cols, and row_col_offsets array.
+    total_rows, total_cols = len(heights), len(heights[0])
+    row_col_offsets = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     
-    # 2. init efforts 2D array with infinity, efforts[0][0] = 0.
-    efforts = [[float('inf')] * cols for _ in range(rows)]
-    efforts[0][0] = 0
+    # 2. init min_recorded_efforts 2D array with infinity, min_recorded_efforts[0][0] = 0.
+    min_recorded_efforts = [[float('inf')] * total_cols for _ in range(total_rows)]
+    min_recorded_efforts[0][0] = 0
     
-    # 3. init min_heap with (0, 0, 0) -> (effort, row, col).
-    min_heap = [(0, 0, 0)]
+    # 3. init path_queue with (0, 0, 0) -> (current_effort, current_row, current_col).
+    path_queue = [(0, 0, 0)]
     
-    # 4. While min_heap:
-    while min_heap:
-        # 5.     Pop effort, r, c.
-        effort, r, c = heapq.heappop(min_heap)
+    # 4. While path_queue:
+    while path_queue:
+        # 5.     Pop current_effort, current_row, current_col.
+        current_effort, current_row, current_col = heapq.heappop(path_queue)
         
-        # 6.     If at destination, return effort.
-        if r == rows - 1 and c == cols - 1:
-            return effort
+        # 6.     If at destination, return current_effort.
+        if current_row == total_rows - 1 and current_col == total_cols - 1:
+            return current_effort
             
-        # 7.     If effort > efforts[r][c], continue.
-        if effort > efforts[r][c]:
+        # 7.     If current_effort > min_recorded_efforts[current_row][current_col], continue.
+        if current_effort > min_recorded_efforts[current_row][current_col]:
             continue
             
-        # 8.     For dr, dc in directions:
-        for dr, dc in directions:
-            # 9.         Calculate nr, nc.
-            nr, nc = r + dr, c + dc
+        # 8.     For row_offset, col_offset in row_col_offsets:
+        for row_offset, col_offset in row_col_offsets:
+            # 9.         Calculate neighbor_row, neighbor_col.
+            neighbor_row, neighbor_col = current_row + row_offset, current_col + col_offset
             
             # 10.        If bounds check passes:
-            if 0 <= nr < rows and 0 <= nc < cols:
-                # 11.            Calculate new_effort = max(effort, abs(heights[r][c] - heights[nr][nc])).
-                new_effort = max(effort, abs(heights[r][c] - heights[nr][nc]))
+            if 0 <= neighbor_row < total_rows and 0 <= neighbor_col < total_cols:
+                # 11.            Calculate effort_to_neighbor.
+                effort_to_neighbor = max(current_effort, abs(heights[current_row][current_col] - heights[neighbor_row][neighbor_col]))
                 
-                # 12.            If new_effort < efforts[nr][nc]:
-                if new_effort < efforts[nr][nc]:
-                    # 13.                Update efforts[nr][nc] = new_effort.
-                    efforts[nr][nc] = new_effort
+                # 12.            If effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
+                if effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
+                    # 13.                Update min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor.
+                    min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor
                     
-                    # 14.                Push (new_effort, nr, nc) to min_heap.
-                    heapq.heappush(min_heap, (new_effort, nr, nc))
+                    # 14.                Push (effort_to_neighbor, neighbor_row, neighbor_col) to path_queue.
+                    heapq.heappush(path_queue, (effort_to_neighbor, neighbor_row, neighbor_col))
                     
     return 0
