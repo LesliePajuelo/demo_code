@@ -82,6 +82,13 @@ PLAN:
 9.         Decrement the neighbor's `in_degree` by 1.
 10.        If the neighbor's `in_degree` becomes 0, append it to the queue.
 11. If the length of `order` equals `numQuests`, return `order` (valid DAG); otherwise return `[]` (cycle detected).
+
+assert get_quest_order(4, [[1, 0], [2, 1], [3, 2]]) == [0, 1, 2, 3], "Failed standard directed acyclic graph"
+
+assert get_quest_order(2, [[1, 0], [0, 1]]) == [], "Failed cycle detection (should return empty list)"
+
+assert get_quest_order(3, []) == [0, 1, 2], "Failed graph with no dependencies"
+
 """
 
 from collections import deque
@@ -160,6 +167,25 @@ PLAN:
 # 12.            If effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
 # 13.                Update min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor.
 # 14.                Push (effort_to_neighbor, neighbor_row, neighbor_col) to path_queue.
+
+# 1. Has Values (Standard grid): Optimal path avoids the '8' in the middle. 
+# Path goes down the left side and across the bottom: 1 -> 3 -> 5 -> 3 -> 5 (max difference is 2).
+assert minimum_effort_path([
+    [1, 2, 2], 
+    [3, 8, 2], 
+    [5, 3, 5]
+]) == 2, "Failed standard grid"
+
+# 2. "Doesn't" (1x1 grid): Start and destination are the exact same cell.
+assert minimum_effort_path([[5]]) == 0, "Failed 1x1 grid (effort should be 0)"
+
+# 3. Edge Case (Snake path required): Must travel completely backwards (left/up) 
+# to stay in the valleys of '1's and avoid the walls of '10's.
+assert minimum_effort_path([
+    [1, 10, 10], 
+    [1, 10, 10], 
+    [1,  1,  1]
+]) == 0, "Failed flat path around obstacles"
 """
 import heapq
 
@@ -222,41 +248,3 @@ assert get_quest_order(3, []) == [0, 1, 2], "Failed graph with no dependencies"
 
 
 
-# 1. Has Values (Standard grid): Optimal path avoids the '8' in the middle. 
-# Path goes down the left side and across the bottom: 1 -> 3 -> 5 -> 3 -> 5 (max difference is 2).
-assert minimum_effort_path([
-    [1, 2, 2], 
-    [3, 8, 2], 
-    [5, 3, 5]
-]) == 2, "Failed standard grid"
-
-# 2. "Doesn't" (1x1 grid): Start and destination are the exact same cell.
-assert minimum_effort_path([[5]]) == 0, "Failed 1x1 grid (effort should be 0)"
-
-# 3. Edge Case (Snake path required): Must travel completely backwards (left/up) 
-# to stay in the valleys of '1's and avoid the walls of '10's.
-assert minimum_effort_path([
-    [1, 10, 10], 
-    [1, 10, 10], 
-    [1,  1,  1]
-]) == 0, "Failed flat path around obstacles"
-
-
-# 1. Has Values (Standard grid): Optimal path avoids the '8' in the middle. 
-# Path goes down the left side and across the bottom: 1 -> 3 -> 5 -> 3 -> 5 (max difference is 2).
-assert minimum_effort_path([
-    [1, 2, 2], 
-    [3, 8, 2], 
-    [5, 3, 5]
-]) == 2, "Failed standard grid"
-
-# 2. "Doesn't" (1x1 grid): Start and destination are the exact same cell.
-assert minimum_effort_path([[5]]) == 0, "Failed 1x1 grid (effort should be 0)"
-
-# 3. Edge Case (Snake path required): Must travel completely backwards (left/up) 
-# to stay in the valleys of '1's and avoid the walls of '10's.
-assert minimum_effort_path([
-    [1, 10, 10], 
-    [1, 10, 10], 
-    [1,  1,  1]
-]) == 0, "Failed flat path around obstacles"
