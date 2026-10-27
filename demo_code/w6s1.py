@@ -134,9 +134,9 @@ def get_quest_order(numQuests: int, prerequisites: list[list[int]]) -> list[int]
 
 
 """
-=========================================================
-PROBLEM 2: Path with Minimum Effort (Minimax Path)
-=========================================================
+ Path with Minimum Effort (Minimax Path)
+ Prompt:
+    https://gist.github.com/jamjamgobambam/c34b0bb6ec6f13241c13ca5d8bee46f0
 
 UNDERSTAND:
 Problem: Find path from (0,0) to (rows-1, cols-1) in grid `heights` minimizing effort.
@@ -201,6 +201,9 @@ def minimum_effort_path(heights: list[list[int]]) -> int:
     # 3. init path_queue with (0, 0, 0) -> (current_effort, current_row, current_col).
     path_queue = [(0, 0, 0)]
     
+    #########################
+    # Core Dijkstra Loop !!!
+    #######################
     # 4. While path_queue:
     while path_queue:
         # 5.     Pop current_effort, current_row, current_col.
@@ -213,23 +216,28 @@ def minimum_effort_path(heights: list[list[int]]) -> int:
         # 7.     If current_effort > min_recorded_efforts[current_row][current_col], continue.
         if current_effort > min_recorded_efforts[current_row][current_col]:
             continue
-            
+        
+        #########################
+        # END Core Dijkstra Loop !!!
+        #######################
+        
+          #  Look at the grid (Neighbors & Updating) 
         # 8.     For row_offset, col_offset in row_col_offsets:
         for row_offset, col_offset in row_col_offsets:
             # 9.         Calculate neighbor_row, neighbor_col.
             neighbor_row, neighbor_col = current_row + row_offset, current_col + col_offset
             
-            # 10.        If bounds check passes:
+            # 10.If bounds check passes:
             if 0 <= neighbor_row < total_rows and 0 <= neighbor_col < total_cols:
-                # 11.            Calculate effort_to_neighbor.
+                # 11. Calculate effort_to_neighbor.
                 effort_to_neighbor = max(current_effort, abs(heights[current_row][current_col] - heights[neighbor_row][neighbor_col]))
                 
-                # 12.            If effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
+                # 12. If effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
                 if effort_to_neighbor < min_recorded_efforts[neighbor_row][neighbor_col]:
-                    # 13.                Update min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor.
+                    # 13. Update min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor.
                     min_recorded_efforts[neighbor_row][neighbor_col] = effort_to_neighbor
                     
-                    # 14.                Push (effort_to_neighbor, neighbor_row, neighbor_col) to path_queue.
+                    # 14. Push (effort_to_neighbor, neighbor_row, neighbor_col) to path_queue.
                     heapq.heappush(path_queue, (effort_to_neighbor, neighbor_row, neighbor_col))
                     
     return 0
