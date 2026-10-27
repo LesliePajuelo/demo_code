@@ -78,28 +78,27 @@ class UnionFind:
     For each operation, build the line, then query connectivity.
     Expected results: [False, True, False, True, True]."
     '''
-if __name__ == "__main__":
-    # "Create Disjoint Set for 6 substations (0 to 5)."
-    n = 6
-    # "Operations: (origin, destination, query_a, query_b)."
-    grid_operations = [
-        (0, 1, 0, 2),  # "Build line (0,1), query (0,2): False."
-        (1, 2, 0, 2),  # "Build line (1,2), query (0,2): True."
-        (3, 4, 3, 5),  # "Build line (3,4), query (3,5): False."
-        (4, 5, 3, 5),  # "Build line (4,5), query (3,5): True."
-        (0, 3, 0, 5),  # "Build line (0,3), query (0,5): True."
-    ]
+# "Create Disjoint Set for 6 substations (0 to 5)."
+n = 6
+# "Operations: (origin, destination, query_a, query_b)."
+grid_operations = [
+    (0, 1, 0, 2),  # "Build line (0,1), query (0,2): False."
+    (1, 2, 0, 2),  # "Build line (1,2), query (0,2): True."
+    (3, 4, 3, 5),  # "Build line (3,4), query (3,5): False."
+    (4, 5, 3, 5),  # "Build line (4,5), query (3,5): True."
+    (0, 3, 0, 5),  # "Build line (0,3), query (0,5): True."
+]
 
-    ds = UnionFind(n)
-    results = []
-    for origin, destination, query_a, query_b in grid_operations:
-        # "Build the transmission line."
-        ds.union(origin, destination)
-        # "Query whether the two substations share a grid component."
-        results.append(ds.connected(query_a, query_b))
-        print(f"Build ({origin},{destination}), query ({query_a},{query_b}):", results[-1])
-        print("Parents:", ds.parent)
+ds = UnionFind(n)
+results = []
+for origin, destination, query_a, query_b in grid_operations:
+    # "Build the transmission line."
+    ds.union(origin, destination)
+    # "Query whether the two substations share a grid component."
+    results.append(ds.connected(query_a, query_b))
+    print(f"Build ({origin},{destination}), query ({query_a},{query_b}):", results[-1])
+    print("Parents:", ds.parent)
 
-    print("Results:", results)
-    assert results == [False, True, False, True, True], "Unexpected grid connectivity results!"
-    print("All tests passed successfully!")
+print("Results:", results)
+assert results == [False, True, False, True, True], "Unexpected grid connectivity results!"
+print("All tests passed successfully!")
