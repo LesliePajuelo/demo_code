@@ -25,36 +25,79 @@
 #      to "Find ALL unique combinations of coins that sum to 6¢".
 
 # ==============================================================================
-# PART 2: LINE-BY-LINE PLANS FOR EACH ALGORITHM
+# PART 2: GENERIC LINE-BY-LINE PLANS FOR EACH ALGORITHM
 # ==============================================================================
 # --- GREEDY LINE-BY-LINE PLAN ---
-# 1. Sort coins in descending order (largest to smallest).
-# 2. Initialize coin counter `count = 0`.
-# 3. Loop through each `coin` in sorted `coins`:
-# 4.   While remaining `amount >= coin`:
-# 5.     Subtract `coin` from `amount`.
-# 6.     Increment `count` by 1.
-# 7. Return `count` if `amount == 0`, else `-1` (if target cannot be formed).
+# 1. Sort `choices` by local optimality metric.
+# 2. Initialize `state` and `result`.
+# 3. Loop through each `candidate` in `choices`:
+# 4.   While `candidate` is valid for `state`:
+# 5.     Commit `candidate` to `result`.
+# 6.     Advance `state` using `candidate`.
+# 7. Return `result` if target `state` reached, else fallback.
 #
-# --- DYNAMIC PROGRAMMING (BOTTOM-UP) LINE-BY-LINE PLAN ---
-# 1. Create array `dp` of size `amount + 1`, filled with `float('inf')`.
-# 2. Set base case `dp[0] = 0` (0 coins needed to make 0¢).
-# 3. Loop sub-amount `a` from `1` up to `amount`:
-# 4.   Loop through each `c` in `coins`:
-# 5.     If `a - c >= 0` (coin fits into current sub-amount):
-# 6.       Update `dp[a] = min(dp[a], 1 + dp[a - c])`.
-# 7. Return `dp[amount]` if not `float('inf')`, else `-1`.
+# --- DYNAMIC PROGRAMMING (TOP-DOWN MEMOIZATION) LINE-BY-LINE PLAN ---
+# 1. Initialize `memo` cache with base cases.
+# 2. Define recursive helper `dp(state)`:
+# 3.   If `state` in `memo`, return `memo[state]`.
+# 4.   If `state` is invalid, return base identity.
+# 5.   Initialize `best` for current `state`.
+# 6.   Loop through each `choice` in `choices`:
+# 7.     Update `best = combine(best, cost + dp(next_state))`.
+# 8.   Store `memo[state] = best` and return `best`.
+# 9. Invoke `dp(target_state)` and return result.
 #
-# --- BACKTRACKING (ALL COMBINATIONS) LINE-BY-LINE PLAN ---
-# 1. Initialize `results = []` to store all valid coin combinations.
-# 2. Define helper `backtrack(path, start, rem)`:
-# 3.   Base Case (Complete): If `rem == 0`, append `path.copy()` to `results` and return.
-# 4.   Prune Case: If `rem < 0`, return immediately (sum exceeded target).
-# 5.   Loop index `i` from `start` to `len(coins) - 1` (never look backward -> Combinations):
-# 6.     CHOOSE: Append `coins[i]` to `path`.
-# 7.     EXPLORE: Call `backtrack(path, i, rem - coins[i])` (pass `i` to allow reusing coin).
-# 8.     UN-CHOOSE: Pop last coin from `path` to restore state for next branch.
-# 9. Invoke `backtrack([], 0, amount)` and return `results`.
+# --- DYNAMIC PROGRAMMING (BOTTOM-UP TABULATION) LINE-BY-LINE PLAN ---
+# 1. Initialize `dp` table sized for all states with default values.
+# 2. Set base cases in `dp` table.
+# 3. Loop `state` from smallest subproblem up to `target_state`:
+# 4.   Loop through each `choice` in `choices`:
+# 5.     If `prev_state` is valid:
+# 6.       Update `dp[state] = combine(dp[state], cost + dp[prev_state])`.
+# 7. Return `dp[target_state]` if reachable, else fallback.
+#
+# --- BACKTRACKING LINE-BY-LINE PLAN ---
+# 1. Initialize `results` list.
+# 2. Define helper `backtrack(path, state, choices)`:
+# 3.   If `is_complete(path, state)`, append `path.copy()` to `results` and return.
+# 4.   If `is_invalid(state)`, return.
+# 5.   Loop through each `choice` in `choices`:
+# 6.     Append `choice` to `path`.
+# 7.     Call `backtrack(path, next_state, next_choices)`.
+# 8.     Pop `choice` from `path`.
+# 9. Invoke `backtrack([], initial_state, choices)` and return `results`.
+
+# ==============================================================================
+    # PART 2: LINE-BY-LINE PLANS FOR EACH ALGORITHM
+    # ==============================================================================
+    # --- GREEDY LINE-BY-LINE PLAN ---
+    # 1. Sort coins in descending order (largest to smallest).
+    # 2. Initialize coin counter `count = 0`.
+    # 3. Loop through each `coin` in sorted `coins`:
+    # 4.   While remaining `amount >= coin`:
+    # 5.     Subtract `coin` from `amount`.
+    # 6.     Increment `count` by 1.
+    # 7. Return `count` if `amount == 0`, else `-1` (if target cannot be formed).
+    #
+    # --- DYNAMIC PROGRAMMING (BOTTOM-UP) LINE-BY-LINE PLAN ---
+    # 1. Create array `dp` of size `amount + 1`, filled with `float('inf')`.
+    # 2. Set base case `dp[0] = 0` (0 coins needed to make 0¢).
+    # 3. Loop sub-amount `a` from `1` up to `amount`:
+    # 4.   Loop through each `c` in `coins`:
+    # 5.     If `a - c >= 0` (coin fits into current sub-amount):
+    # 6.       Update `dp[a] = min(dp[a], 1 + dp[a - c])`.
+    # 7. Return `dp[amount]` if not `float('inf')`, else `-1`.
+    #
+    # --- BACKTRACKING (ALL COMBINATIONS) LINE-BY-LINE PLAN ---
+    # 1. Initialize `results = []` to store all valid coin combinations.
+    # 2. Define helper `backtrack(path, start, rem)`:
+    # 3.   Base Case (Complete): If `rem == 0`, append `path.copy()` to `results` and return.
+    # 4.   Prune Case: If `rem < 0`, return immediately (sum exceeded target).
+    # 5.   Loop index `i` from `start` to `len(coins) - 1` (never look backward -> Combinations):
+    # 6.     CHOOSE: Append `coins[i]` to `path`.
+    # 7.     EXPLORE: Call `backtrack(path, i, rem - coins[i])` (pass `i` to allow reusing coin).
+    # 8.     UN-CHOOSE: Pop last coin from `path` to restore state for next branch.
+    # 9. Invoke `backtrack([], 0, amount)` and return `results`.
 
 # ==============================================================================
 # PART 3: UMPIRE WORKFLOW & IMPLEMENTATIONS
@@ -69,6 +112,20 @@
 # ------------------------------------------------------------------------------
 # 1. GREEDY SOLUTION (Fails on {1, 3, 4} for 6¢)
 # ------------------------------------------------------------------------------
+
+# From Greedy to DP: 5¢ with {1, 3, 4}
+# The Goal: Find the absolute minimum number of coins.
+# Greedy Logic: Take the biggest coin first, no matter what.
+# DP Logic: Try every coin as a first step and see which one leads to the best future.
+
+# 1. Sort coins in descending order (largest to smallest).
+# 2. Initialize coin counter `count = 0`.
+# 3. Loop through each `coin` in sorted `coins`:
+# 4.   While remaining `amount >= coin`:
+# 5.     Subtract `coin` from `amount`.
+# 6.     Increment `count` by 1.
+# 7. Return `count` if `amount == 0`, else `-1` (if target cannot be formed).
+
 def coin_change_greedy(coins: list[int], amount: int) -> int:
     # Sort descending to always grab largest coin first
     sorted_coins = sorted(coins, reverse=True)
@@ -129,16 +186,29 @@ def coin_change_memo(coins: list[int], amount: int) -> int:
 
 # Refactor Step 2C: Bottom-Up DP with Tabulation (Iterative array, no recursion overhead)
 # Time: O(A * N) | Space: O(A) dp array
+# --- DYNAMIC PROGRAMMING (BOTTOM-UP) LINE-BY-LINE PLAN ---
+# 1. Create array `counts` of size `amount + 1`, filled with `float('inf')`.
+# 2. Set base case `counts[0] = 0` (0 coins needed to make 0¢).
+# 3. Loop `sub_amount` from `1` up to `amount`:
+# 4.   Loop through each `coin` in `coins`:
+# 5.     If `sub_amount >= coin` (mirrors `amount >= coin` from greedy):
+# 6.       Update `counts[sub_amount] = min(counts[sub_amount], 1 + counts[sub_amount - coin])`.
+# 7. Return `counts[amount]` if not `float('inf')`, else `-1`.
+
+
+
+# 2. Refactored to Bottom-Up DP (`count` -> `counts` array, `amount >= coin` -> `sub_amount >= coin`)
 def coin_change_dp(coins: list[int], amount: int) -> int:
-    dp = [float('inf')] * (amount + 1)
-    dp[0] = 0
+    counts = [float('inf')] * (amount + 1)
+    counts[0] = 0
 
-    for a in range(1, amount + 1):
-        for c in coins:
-            if a - c >= 0:
-                dp[a] = min(dp[a], 1 + dp[a - c])
+    for sub_amount in range(1, amount + 1):
+        for coin in coins:
+            if sub_amount >= coin:
+                counts[sub_amount] = min(counts[sub_amount], 1 + counts[sub_amount - coin])
 
-    return int(dp[amount]) if dp[amount] != float('inf') else -1
+    count = counts[amount]
+    return int(count) if count != float('inf') else -1
 
 
 # ------------------------------------------------------------------------------
@@ -188,5 +258,45 @@ if __name__ == "__main__":
     print(f"2B. Top-Down Memo DP Result:     {coin_change_memo(demo_coins, demo_amount)} coins")
     print(f"2C. Bottom-Up Tabulation Result: {coin_change_dp(demo_coins, demo_amount)} coins (Optimal: 3+3)")
     print(f"3. Backtracking All Combos:      {all_coin_combinations_backtrack(demo_coins, demo_amount)}")
-coin_change_umpire_demo.py
-Displaying coin_change_umpire_demo.py.
+# ==============================================================================
+# PART 2: GENERIC LINE-BY-LINE PLANS FOR EACH ALGORITHM
+# ==============================================================================
+# --- GREEDY LINE-BY-LINE PLAN ---
+# 1. Sort `choices` by local optimality metric.
+# 2. Initialize `state` and `result`.
+# 3. Loop through each `candidate` in `choices`:
+# 4.   While `candidate` is valid for `state`:
+# 5.     Commit `candidate` to `result`.
+# 6.     Advance `state` using `candidate`.
+# 7. Return `result` if target `state` reached, else fallback.
+#
+# --- DYNAMIC PROGRAMMING (TOP-DOWN MEMOIZATION) LINE-BY-LINE PLAN ---
+# 1. Initialize `memo` cache with base cases.
+# 2. Define recursive helper `dp(state)`:
+# 3.   If `state` in `memo`, return `memo[state]`.
+# 4.   If `state` is invalid, return base identity.
+# 5.   Initialize `best` for current `state`.
+# 6.   Loop through each `choice` in `choices`:
+# 7.     Update `best = combine(best, cost + dp(next_state))`.
+# 8.   Store `memo[state] = best` and return `best`.
+# 9. Invoke `dp(target_state)` and return result.
+#
+# --- DYNAMIC PROGRAMMING (BOTTOM-UP TABULATION) LINE-BY-LINE PLAN ---
+# 1. Initialize `dp` table sized for all states with default values.
+# 2. Set base cases in `dp` table.
+# 3. Loop `state` from smallest subproblem up to `target_state`:
+# 4.   Loop through each `choice` in `choices`:
+# 5.     If `prev_state` is valid:
+# 6.       Update `dp[state] = combine(dp[state], cost + dp[prev_state])`.
+# 7. Return `dp[target_state]` if reachable, else fallback.
+#
+# --- BACKTRACKING LINE-BY-LINE PLAN ---
+# 1. Initialize `results` list.
+# 2. Define helper `backtrack(path, state, choices)`:
+# 3.   If `is_complete(path, state)`, append `path.copy()` to `results` and return.
+# 4.   If `is_invalid(state)`, return.
+# 5.   Loop through each `choice` in `choices`:
+# 6.     Append `choice` to `path`.
+# 7.     Call `backtrack(path, next_state, next_choices)`.
+# 8.     Pop `choice` from `path`.
+# 9. Invoke `backtrack([], initial_state, choices)` and return `results`.
